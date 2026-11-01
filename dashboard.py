@@ -47,7 +47,8 @@ with st.sidebar:
 
 @st.cache_data(ttl=3600)
 def load_data(days):
-    cves = get_enriched_cves(days)
+    # LIMIT TO 50 CVEs FOR INSTANT LOADING
+    cves = get_enriched_cves(days, limit=50)
     return [cve.model_dump() for cve in cves]
 
 with st.spinner("📡 Scanning NVD, CISA KEV, and EPSS databases..."):
