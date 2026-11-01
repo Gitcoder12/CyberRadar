@@ -1,10 +1,3 @@
-Here is the **complete, final `dashboard.py`** with the Radar Chart fix included. 
-
-The only change from your version is in the `with chart_col1:` section. I forced it to always look for all 4 severity levels (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`) so that even if you filter them out in the sidebar, the radar chart still draws a perfect diamond shape instead of a flat line.
-
-Copy and paste this entire file into `dashboard.py` on GitHub:
-
-```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -102,14 +95,12 @@ chart_col1, chart_col2 = st.columns(2)
 with chart_col1:
     st.subheader("📡 Threat Radar (Severity)")
     
-    # FIX: Force all 4 categories so the radar always draws a full shape
     all_severities = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
     sev_counts = df["severity"].value_counts().reindex(all_severities, fill_value=0)
     
     cats = sev_counts.index.tolist()
     vals = sev_counts.values.tolist()
     
-    # Close the loop for the radar chart
     cats.append(cats[0])
     vals.append(vals[0])
     
@@ -179,4 +170,3 @@ elif df["is_kev"].sum() == 0:
 st.divider()
 csv = display.to_csv(index=False).encode('utf-8')
 st.download_button("📥 Download Threat Report (CSV)", csv, "cyberradar_report.csv", "text/csv", use_container_width=True)
-```
