@@ -1,9 +1,6 @@
 🛡️ CyberRadar
 Real-time vulnerability intelligence and risk prioritization.
 
-https://static.streamlit.io/badges/streamlit_badge_black_red.svg
-https://img.shields.io/badge/python-3.10%2B-blue.svg
-https://img.shields.io/badge/License-Apache_2.0-blue.svg
 
 CyberRadar aggregates CVE data from NVD, CISA KEV, and FIRST EPSS to identify and prioritize actively exploited and high-risk vulnerabilities.
 
