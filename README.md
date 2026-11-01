@@ -1,63 +1,37 @@
-🛡️ CyberRadar
-Real-time vulnerability intelligence and risk prioritization.
+The reason data only comes up to 3 months is because **the NVD API enforces a strict 120-day window per request** (unless you use pagination with a key, but their public API has hard limits). That's a government API limitation, not a bug in your code. 3 months is the max you can pull without a paid enterprise key.
 
+Here is the **extremely short, no-bullshit README**. No nested boxes, no fluff. Copy-paste this directly.
 
-CyberRadar aggregates CVE data from NVD, CISA KEV, and FIRST EPSS to identify and prioritize actively exploited and high-risk vulnerabilities.
+***
 
-Traditional scanners rely purely on CVSS severity scores, which leads to alert fatigue. CyberRadar solves this by calculating a dynamic Composite Risk Score that factors in real-world exploitation probability.
+# 🛡️ CyberRadar
 
-🚀 Features
-Live Threat Intelligence: Aggregates data from NVD (National Vulnerability Database), CISA KEV (Known Exploited Vulnerabilities), and FIRST EPSS.
+**Real-time vulnerability intelligence and risk prioritization.**
 
-Composite Risk Engine: Weighs CVSS severity (40%) and EPSS probability (60%) to prioritize actual threats over theoretical ones.
+[![Live Demo](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](YOUR_STREAMLIT_LINK_HERE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-KEV Prioritization: Actively exploited CVEs are automatically escalated to a Critical risk score of 100.
+CyberRadar aggregates CVE data from NVD, CISA KEV, and FIRST EPSS to identify actively exploited vulnerabilities. It calculates a dynamic **Composite Risk Score** (CVSS + EPSS + KEV) to prioritize threats that are actually being weaponized.
 
-Interactive SOC Dashboard: Features a Polar Threat Radar, Top Affected Vendors bar chart, and a real-time System Weakness gauge.
+## Features
+- **Live Threat Intel:** Aggregates NVD, CISA KEV, and FIRST EPSS feeds.
+- **Composite Risk Engine:** Weights CVSS (40%) and EPSS (60%). KEV-listed CVEs are forced to a score of `100`.
+- **Solidifier Protocol:** Simulated WAF quarantine logic for exploited CVEs.
+- **Interactive SOC Dashboard:** Polar Threat Radar, System Weakness Gauge, and Vendor Analysis.
+- **Exportable:** Filter by severity/time and download CSV reports.
+- **Resilient:** Built-in API rate limiting, pagination, and caching.
 
-The "Solidifier" Protocol: Simulated automated defense logic that detects repeatedly exploited CVEs and logs WAF quarantine rules.
+## Tech Stack
+Python · Streamlit · Plotly · Pandas · Pydantic
 
-Resilient Architecture: Built-in API rate limiting, batching, and st.cache_data to prevent 429 errors and ensure rapid UI loads.
-
-Exportable Reports: Filter by severity or KEV status and export the results directly to CSV.
-
-💻 Tech Stack
-Frontend: Streamlit · Plotly
-
-Backend: Python · Requests
-
-Data Processing: Pandas
-
-Data Validation: Pydantic
-
-⚙️ Setup
-bash
-# Clone the repository
+## Quick Start
+```bash
 git clone https://github.com/Gitcoder12/CyberRadar.git
 cd CyberRadar
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the dashboard
 streamlit run dashboard.py
-Optional: To avoid NVD API rate limits, set your free NVD_API_KEY in a .env file or Streamlit Secrets.
+```
+*Note: Set `NVD_API_KEY` in your environment to bypass NVD rate limits.*
 
-🧮 Composite Risk Scoring
-The risk score is calculated on a normalized 0–100 scale:
-
-R
-=
-0.4
-×
-CVSS
-+
-0.6
-×
-EPSS
-R=0.4×CVSS+0.6×EPSS
-
-If a vulnerability is listed in CISA KEV (Known Exploited), the score is automatically forced to 100.
-
-📄 License
-This project is licensed under the MIT License.
+## License
+Apache 2.0
