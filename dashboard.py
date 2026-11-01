@@ -35,7 +35,16 @@ st.markdown(f'<div class="header-container">{radar_svg}<h1 style="margin: 0;">Cy
 
 with st.sidebar:
     st.markdown("### 🎯 Targeting Parameters")
-    days_back = st.slider("Days to look back", 1, 30, 7)
+    
+    # NEW: Monthly Dropdown instead of Slider
+    time_range = st.selectbox(
+        "Time Range",
+        ["Past 7 Days", "Past 1 Month", "Past 3 Months", "Past 6 Months"],
+        index=1
+    )
+    time_map = {"Past 7 Days": 7, "Past 1 Month": 30, "Past 3 Months": 90, "Past 6 Months": 180}
+    days_back = time_map[time_range]
+
     severity_filter = st.multiselect("Severity", ["CRITICAL", "HIGH", "MEDIUM", "LOW"], default=["CRITICAL", "HIGH"])
     show_only_kev = st.checkbox("Show ONLY Known Exploited (KEV)", value=False)
     
@@ -47,8 +56,7 @@ with st.sidebar:
 
 @st.cache_data(ttl=3600)
 def load_data(days):
-    # Fetch 500 CVEs for the sweet spot of speed and data availability
-    cves = get_enriched_cves(days, limit=500)
+    cves = get_enriched_cves(days, limit=1000)
     return [cve.model_dump() for cve in cves]
 
 with st.spinner("📡 Scanning NVD, CISA KEV, and EPSS databases..."):
@@ -95,12 +103,11 @@ chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
     st.subheader("📡 Threat Radar (Severity)")
-    
     all_severities = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
     sev_counts = df["severity"].value_counts().reindex(all_severities, fill_value=0)
     
     if sev_counts.sum() == 0:
-        st.info("No data to display in radar based on current filters.")
+        st.info("No data to display in radar.")
     else:
         cats = sev_counts.index.tolist() + [sev_counts.index[0]]
         vals = sev_counts.values.tolist() + [sev_counts.values[0]]
@@ -112,26 +119,25 @@ with chart_col1:
         ))
         fig.update_layout(
             polar=dict(radialaxis=dict(gridcolor="rgba(255,255,255,0.1)")), 
-            template="plotly_dark", height=350, 
-            margin=dict(l=40, r=40, t=20, b=20)
+            template="plotly_dark", height=350, margin=dict(l=40, r=40, t=20, b=20)
         )
         st.plotly_chart(fig, use_container_width=True)
 
 with chart_col2:
     st.subheader("🏢 Top Affected Vendors")
     
-    if df.empty:
-        st.info("No vendor data available based on current filters.")
+    # FILTER OUT UNKNOWN: Keep the chart clean
+    known_vendors = df[df["vendor"] != "Unknown"]
+    
+    if known_vendors.empty:
+        st.info("NVD hasn't assigned vendor data to these recent CVEs yet.")
     else:
-        vc = df["vendor"].value_counts().head(7).reset_index()
+        vc = known_vendors["vendor"].value_counts().head(7).reset_index()
         vc.columns = ["Vendor", "Count"]
         
-        if vc.empty or vc["Vendor"].iloc[0] == "Unknown" and len(vc) == 1:
-             st.info("NVD hasn't assigned vendor data to these recent CVEs yet.")
-        else:
-            fig = px.bar(vc, x="Count", y="Vendor", orientation="h", color="Count", color_continuous_scale=["#004d40", "#00f5d4"])
-            fig.update_layout(template="plotly_dark", height=350, margin=dict(l=0, r=0, t=20, b=0), coloraxis_showscale=False)
-            st.plotly_chart(fig, use_container_width=True)
+        fig = px.bar(vc, x="Count", y="Vendor", orientation="h", color="Count", color_continuous_scale=["#004d40", "#00f5d4"])
+        fig.update_layout(template="plotly_dark", height=350, margin=dict(l=0, r=0, t=20, b=0), coloraxis_showscale=False)
+        st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
