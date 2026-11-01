@@ -5,5 +5,8 @@ class Vulnerability(BaseModel):
     cve_id: str
     description: str
     severity: str
-    cvss_score: Optional[float]
-    is_kev: bool = False  # Is it in the CISA Known Exploited Vulnerabilities list?
+    cvss_score: Optional[float] = None
+    epss_score: Optional[float] = None
+    is_kev: bool = False
+    vendor: str = "Unknown"
+    composite_risk: int = 0
