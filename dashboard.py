@@ -47,8 +47,8 @@ with st.sidebar:
 
 @st.cache_data(ttl=3600)
 def load_data(days):
-    # LIMIT TO 50 CVEs FOR INSTANT LOADING
-    cves = get_enriched_cves(days, limit=50)
+    # Fetch 500 CVEs for the sweet spot of speed and data availability
+    cves = get_enriched_cves(days, limit=500)
     return [cve.model_dump() for cve in cves]
 
 with st.spinner("📡 Scanning NVD, CISA KEV, and EPSS databases..."):
@@ -99,32 +99,39 @@ with chart_col1:
     all_severities = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
     sev_counts = df["severity"].value_counts().reindex(all_severities, fill_value=0)
     
-    cats = sev_counts.index.tolist()
-    vals = sev_counts.values.tolist()
-    
-    cats.append(cats[0])
-    vals.append(vals[0])
-    
-    fig = go.Figure(go.Scatterpolar(
-        r=vals, theta=cats, fill='toself', 
-        line=dict(color='#00f5d4'), fillcolor='rgba(0,245,212,0.2)',
-        marker=dict(size=6, color='#00f5d4')
-    ))
-    fig.update_layout(
-        polar=dict(radialaxis=dict(gridcolor="rgba(255,255,255,0.1)")), 
-        template="plotly_dark", height=350, 
-        margin=dict(l=40, r=40, t=20, b=20)
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    if sev_counts.sum() == 0:
+        st.info("No data to display in radar based on current filters.")
+    else:
+        cats = sev_counts.index.tolist() + [sev_counts.index[0]]
+        vals = sev_counts.values.tolist() + [sev_counts.values[0]]
+        
+        fig = go.Figure(go.Scatterpolar(
+            r=vals, theta=cats, fill='toself', 
+            line=dict(color='#00f5d4'), fillcolor='rgba(0,245,212,0.2)',
+            marker=dict(size=6, color='#00f5d4')
+        ))
+        fig.update_layout(
+            polar=dict(radialaxis=dict(gridcolor="rgba(255,255,255,0.1)")), 
+            template="plotly_dark", height=350, 
+            margin=dict(l=40, r=40, t=20, b=20)
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
 with chart_col2:
     st.subheader("🏢 Top Affected Vendors")
-    vc = df["vendor"].value_counts().head(7).reset_index()
-    vc.columns = ["Vendor", "Count"]
-    if not vc.empty:
-        fig = px.bar(vc, x="Count", y="Vendor", orientation="h", color="Count", color_continuous_scale=["#004d40", "#00f5d4"])
-        fig.update_layout(template="plotly_dark", height=350, margin=dict(l=0, r=0, t=20, b=0), coloraxis_showscale=False)
-        st.plotly_chart(fig, use_container_width=True)
+    
+    if df.empty:
+        st.info("No vendor data available based on current filters.")
+    else:
+        vc = df["vendor"].value_counts().head(7).reset_index()
+        vc.columns = ["Vendor", "Count"]
+        
+        if vc.empty or vc["Vendor"].iloc[0] == "Unknown" and len(vc) == 1:
+             st.info("NVD hasn't assigned vendor data to these recent CVEs yet.")
+        else:
+            fig = px.bar(vc, x="Count", y="Vendor", orientation="h", color="Count", color_continuous_scale=["#004d40", "#00f5d4"])
+            fig.update_layout(template="plotly_dark", height=350, margin=dict(l=0, r=0, t=20, b=0), coloraxis_showscale=False)
+            st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
