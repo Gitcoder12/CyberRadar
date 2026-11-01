@@ -1,7 +1,5 @@
 The reason data only comes up to 3 months is because **the NVD API enforces a strict 120-day window per request** (unless you use pagination with a key, but their public API has hard limits). That's a government API limitation, not a bug in your code. 3 months is the max you can pull without a paid enterprise key.
 
-Here is the **extremely short, no-bullshit README**. No nested boxes, no fluff. Copy-paste this directly.
-
 ***
 
 # 🛡️ CyberRadar
@@ -34,4 +32,4 @@ streamlit run dashboard.py
 *Note: Set `NVD_API_KEY` in your environment to bypass NVD rate limits.*
 
 ## License
-Apache 2.0
+MIT License
