@@ -16,11 +16,11 @@ def extract_vendor(cve_data: dict) -> str:
         pass
     return "Unknown"
 
-def fetch_recent_cves(days_back: int = 7, limit: int = 50) -> list[Vulnerability]:
+def fetch_recent_cves(days_back: int = 7, limit: int = 500) -> list[Vulnerability]:
     end_date = datetime.datetime.now()
     start_date = end_date - datetime.timedelta(days=days_back)
     
-    # STRICT LIMIT: We only ask NVD for 50 CVEs. This loads in 1 second.
+    # GOLDILOCKS LIMIT: 500 CVEs. Fast enough to load instantly, big enough to populate charts.
     params = {
         "pubStartDate": start_date.strftime("%Y-%m-%dT00:00:00.000"),
         "pubEndDate": end_date.strftime("%Y-%m-%dT23:59:59.999"),
@@ -66,15 +66,22 @@ def fetch_kev_list() -> set[str]:
 
 def enrich_with_epss(cves: list[Vulnerability]) -> dict[str, float]:
     if not cves: return {}
-    # Only request EPSS for the 50 we just fetched. One single API call.
-    cve_ids = ",".join([c.cve_id for c in cves])
-    try:
-        res = requests.get(f"{EPSS_API_URL}?cve={cve_ids}", timeout=10)
-        if res.status_code == 200:
-            return {item["cve"]: float(item.get("epss", 0.0)) for item in res.json().get("data", [])}
-    except Exception:
-        pass
-    return {}
+    
+    epss_scores = {}
+    # Batch in chunks of 100 to avoid URL length limits
+    for i in range(0, len(cves), 100):
+        batch = cves[i:i+100]
+        cve_ids = ",".join([c.cve_id for c in batch])
+        try:
+            res = requests.get(f"{EPSS_API_URL}?cve={cve_ids}", timeout=10)
+            if res.status_code == 200:
+                for item in res.json().get("data", []):
+                    epss_scores[item["cve"]] = float(item.get("epss", 0.0))
+        except Exception:
+            pass
+        time.sleep(0.1)
+        
+    return epss_scores
 
 def calculate_composite_risk(cvss: float | None, epss: float | None, is_kev: bool) -> int:
     if is_kev: return 100
@@ -83,7 +90,7 @@ def calculate_composite_risk(cvss: float | None, epss: float | None, is_kev: boo
     score = (cvss_val * 4) + (epss_val * 6)
     return min(100, int(score))
 
-def get_enriched_cves(days_back: int = 7, limit: int = 50) -> list[Vulnerability]:
+def get_enriched_cves(days_back: int = 7, limit: int = 500) -> list[Vulnerability]:
     cves = fetch_recent_cves(days_back, limit)
     kev_list = fetch_kev_list()
     epss_map = enrich_with_epss(cves)
