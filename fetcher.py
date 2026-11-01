@@ -16,44 +16,61 @@ def extract_vendor(cve_data: dict) -> str:
         pass
     return "Unknown"
 
-def fetch_recent_cves(days_back: int = 7, limit: int = 500) -> list[Vulnerability]:
+def fetch_recent_cves(days_back: int = 30, max_limit: int = 1000) -> list[Vulnerability]:
     end_date = datetime.datetime.now()
     start_date = end_date - datetime.timedelta(days=days_back)
     
-    # GOLDILOCKS LIMIT: 500 CVEs. Fast enough to load instantly, big enough to populate charts.
-    params = {
-        "pubStartDate": start_date.strftime("%Y-%m-%dT00:00:00.000"),
-        "pubEndDate": end_date.strftime("%Y-%m-%dT23:59:59.999"),
-        "resultsPerPage": limit
-    }
-    
-    try:
-        response = requests.get(NVD_API_URL, params=params, headers=get_nvd_headers(), timeout=10)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        print(f"NVD API Error: {e}")
-        return []
-
     vulnerabilities = []
-    for item in data.get("vulnerabilities", []):
-        cve = item.get("cve", {})
-        cve_id = cve.get("id", "Unknown")
-        desc = next((d["value"] for d in cve.get("descriptions", []) if d["lang"] == "en"), "No description.")
+    start_index = 0
+    results_per_page = 500  # Safe page size for NVD API
+    
+    while start_index < max_limit:
+        params = {
+            "pubStartDate": start_date.strftime("%Y-%m-%dT00:00:00.000"),
+            "pubEndDate": end_date.strftime("%Y-%m-%dT23:59:59.999"),
+            "startIndex": start_index,
+            "resultsPerPage": results_per_page
+        }
         
-        score = None
-        severity = "UNKNOWN"
-        metrics = cve.get("metrics", {})
-        if "cvssMetricV31" in metrics:
-            score = metrics["cvssMetricV31"][0]["cvssData"].get("baseScore")
-            severity = metrics["cvssMetricV31"][0]["cvssData"].get("baseSeverity", "UNKNOWN")
-        elif "cvssMetricV30" in metrics:
-            score = metrics["cvssMetricV30"][0]["cvssData"].get("baseScore")
-            severity = metrics["cvssMetricV30"][0]["cvssData"].get("baseSeverity", "UNKNOWN")
+        try:
+            response = requests.get(NVD_API_URL, params=params, headers=get_nvd_headers(), timeout=15)
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            print(f"NVD API Error: {e}")
+            break
+            
+        raw_vulns = data.get("vulnerabilities", [])
+        if not raw_vulns:
+            break
 
-        vulnerabilities.append(Vulnerability(
-            cve_id=cve_id, description=desc, severity=severity, cvss_score=score, vendor=extract_vendor(cve)
-        ))
+        for item in raw_vulns:
+            cve = item.get("cve", {})
+            cve_id = cve.get("id", "Unknown")
+            desc = next((d["value"] for d in cve.get("descriptions", []) if d["lang"] == "en"), "No description.")
+            
+            score = None
+            severity = "UNKNOWN"
+            metrics = cve.get("metrics", {})
+            if "cvssMetricV31" in metrics:
+                score = metrics["cvssMetricV31"][0]["cvssData"].get("baseScore")
+                severity = metrics["cvssMetricV31"][0]["cvssData"].get("baseSeverity", "UNKNOWN")
+            elif "cvssMetricV30" in metrics:
+                score = metrics["cvssMetricV30"][0]["cvssData"].get("baseScore")
+                severity = metrics["cvssMetricV30"][0]["cvssData"].get("baseSeverity", "UNKNOWN")
+
+            vulnerabilities.append(Vulnerability(
+                cve_id=cve_id, description=desc, severity=severity, cvss_score=score, vendor=extract_vendor(cve)
+            ))
+
+        total_results = data.get("totalResults", 0)
+        start_index += results_per_page
+        
+        if start_index >= total_results or start_index >= max_limit:
+            break
+            
+        time.sleep(1)  # NVD rate limit delay between pages
+
     return vulnerabilities
 
 def fetch_kev_list() -> set[str]:
@@ -66,9 +83,9 @@ def fetch_kev_list() -> set[str]:
 
 def enrich_with_epss(cves: list[Vulnerability]) -> dict[str, float]:
     if not cves: return {}
-    
     epss_scores = {}
-    # Batch in chunks of 100 to avoid URL length limits
+    
+    # Batch EPSS calls in 100s
     for i in range(0, len(cves), 100):
         batch = cves[i:i+100]
         cve_ids = ",".join([c.cve_id for c in batch])
@@ -80,7 +97,6 @@ def enrich_with_epss(cves: list[Vulnerability]) -> dict[str, float]:
         except Exception:
             pass
         time.sleep(0.1)
-        
     return epss_scores
 
 def calculate_composite_risk(cvss: float | None, epss: float | None, is_kev: bool) -> int:
@@ -90,7 +106,7 @@ def calculate_composite_risk(cvss: float | None, epss: float | None, is_kev: boo
     score = (cvss_val * 4) + (epss_val * 6)
     return min(100, int(score))
 
-def get_enriched_cves(days_back: int = 7, limit: int = 500) -> list[Vulnerability]:
+def get_enriched_cves(days_back: int = 30, limit: int = 1000) -> list[Vulnerability]:
     cves = fetch_recent_cves(days_back, limit)
     kev_list = fetch_kev_list()
     epss_map = enrich_with_epss(cves)
