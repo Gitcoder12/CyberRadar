@@ -1,5 +1,4 @@
-The reason data only comes up to 3 months is because **the NVD API enforces a strict 120-day window per request** (unless you use pagination with a key, but their public API has hard limits). That's a government API limitation, not a bug in your code. 3 months is the max you can pull without a paid enterprise key.
-
+The NVD API enforces a 120-day window per request, so the code pulls the maximum 3 months the public API allows. This is an API limitation, not a bug.
 ***
 
 # 🛡️ CyberRadar
