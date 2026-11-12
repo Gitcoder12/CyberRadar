@@ -39,10 +39,10 @@ with st.sidebar:
     # NEW: Monthly Dropdown instead of Slider
     time_range = st.selectbox(
         "Time Range",
-        ["Past 7 Days", "Past 1 Month", "Past 3 Months", "Past 6 Months"],
+        ["Past 7 Days", "Past 1 Month", "Past 3 Months", "Past 120 Days"],
         index=1
     )
-    time_map = {"Past 7 Days": 7, "Past 1 Month": 30, "Past 3 Months": 90, "Past 6 Months": 180}
+    time_map = {"Past 7 Days": 7, "Past 1 Month": 30, "Past 3 Months": 90, "Past 120 Days": 120}
     days_back = time_map[time_range]
 
     severity_filter = st.multiselect("Severity", ["CRITICAL", "HIGH", "MEDIUM", "LOW"], default=["CRITICAL", "HIGH"])
