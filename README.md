@@ -48,7 +48,7 @@ export NVD_API_KEY="your-key"
 $env:NVD_API_KEY="your-key"
 ```
 
-The dashboard also uses public CISA KEV and FIRST EPSS endpoints. External API availability, rate limits, and the amount of returned data can affect scan results.
+The dashboard also uses public CISA KEV and FIRST EPSS endpoints. The NVD publication-date API accepts a maximum 120-day range per request, so the dashboard offers a maximum window of 120 days. External API availability, rate limits, and the amount of returned data can affect scan results.
 
 ## Project Structure
 
