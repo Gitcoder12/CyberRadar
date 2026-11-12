@@ -14,7 +14,7 @@ CyberRadar combines vulnerability records from the **NVD**, **CISA Known Exploit
 - **Threat filtering** — filter by publication window, severity, and KEV status.
 - **SOC-style dashboard** — severity radar, summary metrics, and vendor views.
 - **Refresh and caching** — caches dashboard data for one hour and supports a manual refresh.
-- **Export-ready analysis** — inspect enriched vulnerability records in a single dashboard view.
+- **Enriched vulnerability view** — inspect normalized vulnerability records and risk signals in one dashboard.
 
 ## Tech Stack
 
@@ -27,7 +27,7 @@ git clone https://github.com/Gitcoder12/CyberRadar.git
 cd CyberRadar
 
 python -m venv .venv
-# Windows: .venv\\Scripts\\activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
 # macOS / Linux: source .venv/bin/activate
 
 pip install -r requirements.txt
