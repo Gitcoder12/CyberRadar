@@ -17,7 +17,10 @@ def extract_vendor(cve_data: dict) -> str:
     return "Unknown"
 
 def fetch_recent_cves(days_back: int = 30, max_limit: int = 1000) -> list[Vulnerability]:
-    end_date = datetime.datetime.now()
+    if not 1 <= days_back <= 120:
+        raise ValueError("days_back must be between 1 and 120 for NVD publication-date queries.")
+
+    end_date = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
     start_date = end_date - datetime.timedelta(days=days_back)
     
     vulnerabilities = []
@@ -26,14 +29,15 @@ def fetch_recent_cves(days_back: int = 30, max_limit: int = 1000) -> list[Vulner
     
     while start_index < max_limit:
         params = {
-            "pubStartDate": start_date.strftime("%Y-%m-%dT00:00:00.000"),
-            "pubEndDate": end_date.strftime("%Y-%m-%dT23:59:59.999"),
+            "pubStartDate": start_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            "pubEndDate": end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
             "startIndex": start_index,
             "resultsPerPage": results_per_page
         }
         
         try:
-            response = requests.get(NVD_API_URL, params=params, headers=get_nvd_headers(), timeout=15)
+            headers = get_nvd_headers()
+            response = requests.get(NVD_API_URL, params=params, headers=headers, timeout=15)
             response.raise_for_status()
             data = response.json()
         except Exception as e:
@@ -69,7 +73,7 @@ def fetch_recent_cves(days_back: int = 30, max_limit: int = 1000) -> list[Vulner
         if start_index >= total_results or start_index >= max_limit:
             break
             
-        time.sleep(1)  # NVD rate limit delay between pages
+        time.sleep(1 if "apiKey" in headers else 6)  # Respect NVD's lower unauthenticated request rate
 
     return vulnerabilities
 
