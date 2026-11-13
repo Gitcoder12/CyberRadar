@@ -1,74 +1,47 @@
-# CyberRadar
+The NVD API enforces a 120-day window per request, so the code pulls the maximum 3 months the public API allows. This is an API limitation, not a bug.
+***
+
+# 🛡️ CyberRadar
 
 **Real-time vulnerability intelligence and risk prioritization.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-red.svg)](https://streamlit.io/)
+[![Live Demo](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](YOUR_STREAMLIT_LINK_HERE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-CyberRadar combines vulnerability records from the **NVD**, **CISA Known Exploited Vulnerabilities (KEV)** catalog, and **FIRST EPSS** to help prioritize newly published security issues. It enriches CVEs with severity, vendor, exploitation, and exploit-probability signals in an interactive dashboard.
+CyberRadar aggregates CVE data from NVD, CISA KEV, and FIRST EPSS to identify actively exploited vulnerabilities. It calculates a dynamic **Composite Risk Score** (CVSS + EPSS + KEV) to prioritize threats that are actually being weaponized.
 
 ## Features
-
-- **Multi-source threat data** — retrieves CVEs from NVD and enrichment signals from CISA KEV and FIRST EPSS.
-- **Composite risk score** — combines CVSS and EPSS; a KEV-listed CVE receives a score of 100.
-- **Threat filtering** — filter by publication window, severity, and KEV status.
-- **SOC-style dashboard** — severity radar, summary metrics, and vendor views.
-- **Refresh and caching** — caches dashboard data for one hour and supports a manual refresh.
-- **Enriched vulnerability view** — inspect normalized vulnerability records and risk signals in one dashboard.
+- **Live Threat Intel:** Aggregates NVD, CISA KEV, and FIRST EPSS feeds.
+- **Composite Risk Engine:** Weights CVSS (40%) and EPSS (60%). KEV-listed CVEs are forced to a score of `100`.
+- **Solidifier Protocol:** Simulated WAF quarantine logic for exploited CVEs.
+- **Interactive SOC Dashboard:** Polar Threat Radar, System Weakness Gauge, and Vendor Analysis.
+- **Exportable:** Filter by severity/time and download CSV reports.
+- **Resilient:** Built-in API rate limiting, pagination, and caching.
 
 ## Tech Stack
-
-Python · Streamlit · Pandas · Plotly · Requests · Pydantic
+Python · Streamlit · Plotly · Pandas · Pydantic
 
 ## Quick Start
-
 ```bash
 git clone https://github.com/Gitcoder12/CyberRadar.git
 cd CyberRadar
-
-python -m venv .venv
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-# macOS / Linux: source .venv/bin/activate
-
 pip install -r requirements.txt
 streamlit run dashboard.py
 ```
-
-Open the local URL printed by Streamlit (usually `http://localhost:8501`).
-
-## Configuration
-
-Set an NVD API key to increase the available request rate:
-
-```bash
-# macOS / Linux
-export NVD_API_KEY="your-key"
-
-# Windows PowerShell
-$env:NVD_API_KEY="your-key"
-```
-
-The dashboard also uses public CISA KEV and FIRST EPSS endpoints. The NVD publication-date API accepts a maximum 120-day range per request, so the dashboard offers a maximum window of 120 days. External API availability, rate limits, and the amount of returned data can affect scan results.
-
-## Project Structure
-
-```text
-CyberRadar/
-├── app.py          # Application entry point
-├── dashboard.py    # Streamlit dashboard
-├── fetcher.py      # NVD, KEV, EPSS retrieval and enrichment
-├── config.py       # API endpoints and request headers
-├── models.py       # Vulnerability data model
-├── requirements.txt
-└── README.md
-```
-
-## Scope and Limitations
-
-CyberRadar is a prioritization aid, not a vulnerability scanner or proof of exploitability. Its composite score is a project-defined ranking heuristic; it should not replace asset context, vendor advisories, patch validation, or a security team's risk assessment.
-
-NVD, CISA, and EPSS data may be delayed, rate-limited, incomplete, or temporarily unavailable. Treat missing enrichment values as unknown rather than as evidence that a vulnerability is safe.
+*Note: Set `NVD_API_KEY` in your environment to bypass NVD rate limits.*
 
 ## License
+MIT License
 
-MIT. See [LICENSE](LICENSE).
+
+---
+
+## AI-maintained project notes (secondary — 2026-11-13)
+
+This section supplements the maintainer-authored README above. The original text has been restored verbatim from Git-history baseline `5cac0633648d3f716f9f0e44c6a4bf8cb2e1ee41`; this addendum does not replace or certify the original claims.
+
+- The source tree, runtime data and tests are the implementation source of truth. Roadmap items, draft PRs and AI-generated descriptions are not shipped features by themselves.
+- Preserve existing maintainer-provided data. Never replace real data with synthetic or placeholder records. Clearly label and isolate test fixtures.
+- Mark unverified sources, IDs, records, metrics and external claims as unknown/unverified instead of guessing.
+- Verify setup, execution, test commands and public claims against the exact current commit before using this project in a job, research or academic application.
+- See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for the independent model review and merge gate.
