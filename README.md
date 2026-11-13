@@ -84,3 +84,15 @@ MIT. See [LICENSE](LICENSE).
 - [README quality checklist](README_QUALITY_CHECKLIST.md)
 - [Contributing](CONTRIBUTING.md)
 - [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
+
+## Understanding the project
+
+### In plain language
+
+A dashboard that collects public vulnerability records and helps defenders decide which known security issues deserve attention first.
+
+### Technical and research view
+
+Streamlit application combining NVD CVE records, CISA KEV known-exploited status and FIRST EPSS probability signals into a prioritisation view. Any combined risk score is a project heuristic; it should expose component values, source timestamps, missing data and scoring rules.
+
+For future work, see [FEATURE_UPGRADE_PLAN.md](FEATURE_UPGRADE_PLAN.md), [ACTIVITY_LOG.md](ACTIVITY_LOG.md), [COMPANY_FIT.md](COMPANY_FIT.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
