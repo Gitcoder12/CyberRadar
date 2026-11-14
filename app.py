@@ -6,7 +6,7 @@ from datetime import datetime
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="CyberRadar | Live Threat Intel",
-    page_icon="📡",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -20,7 +20,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
-st.title("📡 CyberRadar")
+st.title(" CyberRadar")
 st.markdown("### Real-Time Global Threat Intelligence")
 st.markdown("Tracking actively exploited vulnerabilities, live malware distribution, and ransomware attacks across the globe.")
 st.divider()
@@ -85,9 +85,9 @@ def fetch_ransomware():
 
 # Create Tabs
 tab1, tab2, tab3 = st.tabs([
-    "🚨 CISA: Actively Exploited", 
-    "🦠 URLhaus: Live Malware", 
-    "🔒 Ransomware: Recent Victims"
+    " CISA: Actively Exploited", 
+    " URLhaus: Live Malware", 
+    " Ransomware: Recent Victims"
 ])
 
 # Tab 1: CISA

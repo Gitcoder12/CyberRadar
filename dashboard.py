@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import datetime
 from fetcher import get_enriched_cves
 
-st.set_page_config(page_title="CyberRadar | Threat Intel", layout="wide", page_icon="🛡️")
+st.set_page_config(page_title="CyberRadar | Threat Intel", layout="wide", page_icon="")
 
 st.markdown("""
 <style>
@@ -34,7 +34,7 @@ radar_svg = """
 st.markdown(f'<div class="header-container">{radar_svg}<h1 style="margin: 0;">CyberRadar // Threat Intel</h1></div>', unsafe_allow_html=True)
 
 with st.sidebar:
-    st.markdown("### 🎯 Targeting Parameters")
+    st.markdown("###  Targeting Parameters")
     
     # NEW: Monthly Dropdown instead of Slider
     time_range = st.selectbox(
@@ -49,7 +49,7 @@ with st.sidebar:
     show_only_kev = st.checkbox("Show ONLY Known Exploited (KEV)", value=False)
     
     st.divider()
-    if st.button("🔄 Force API Refresh", use_container_width=True):
+    if st.button(" Force API Refresh", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
     st.caption(f"Last Scan: {datetime.datetime.now().strftime('%H:%M:%S')}")
@@ -59,11 +59,11 @@ def load_data(days):
     cves = get_enriched_cves(days, limit=1000)
     return [cve.model_dump() for cve in cves]
 
-with st.spinner("📡 Scanning NVD, CISA KEV, and EPSS databases..."):
+with st.spinner(" Scanning NVD, CISA KEV, and EPSS databases..."):
     data = load_data(days_back)
 
 if not data:
-    st.error("⚠️ Failed to fetch data. Please wait 30 seconds and refresh.")
+    st.error(" Failed to fetch data. Please wait 30 seconds and refresh.")
     st.stop()
 
 df = pd.DataFrame(data)
@@ -102,7 +102,7 @@ apply_solidifier(df)
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.subheader("📡 Threat Radar (Severity)")
+    st.subheader(" Threat Radar (Severity)")
     all_severities = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
     sev_counts = df["severity"].value_counts().reindex(all_severities, fill_value=0)
     
@@ -124,7 +124,7 @@ with chart_col1:
         st.plotly_chart(fig, use_container_width=True)
 
 with chart_col2:
-    st.subheader("🏢 Top Affected Vendors")
+    st.subheader(" Top Affected Vendors")
     
     # FILTER OUT UNKNOWN: Keep the chart clean
     known_vendors = df[df["vendor"] != "Unknown"]
@@ -143,7 +143,7 @@ st.divider()
 
 col_meter, col_table = st.columns([1, 2])
 with col_meter:
-    st.subheader("⚠️ System Threat Posture")
+    st.subheader(" System Threat Posture")
     total = len(df)
     risk_score = (df["composite_risk"].mean() if total > 0 else 0)
     fig = go.Figure(go.Indicator(
@@ -158,12 +158,12 @@ with col_meter:
     st.plotly_chart(fig, use_container_width=True)
 
 with col_table:
-    st.subheader("🚨 Vulnerability Feed")
+    st.subheader(" Vulnerability Feed")
     def get_status(row):
-        if row["cve_id"] in st.session_state.solidifier_log: return "🛡️ SOLIDIFIED"
-        if row["is_kev"]: return "🔴 Unpatched"
-        if row["severity"] == "CRITICAL": return "🟠 Needs Patch"
-        return "🟢 Patched"
+        if row["cve_id"] in st.session_state.solidifier_log: return " SOLIDIFIED"
+        if row["is_kev"]: return " Unpatched"
+        if row["severity"] == "CRITICAL": return " Needs Patch"
+        return " Patched"
     
     df["Status"] = df.apply(get_status, axis=1)
     display = df[["cve_id", "vendor", "cvss_score", "epss_score", "composite_risk", "Status", "description"]]
@@ -174,13 +174,13 @@ with col_table:
     })
 
 if st.session_state.solidifier_log:
-    st.error(f"🚨 SOLIDIFIER ACTIVE: {len(st.session_state.solidifier_log)} actively exploited CVEs have been quarantined.")
+    st.error(f" SOLIDIFIER ACTIVE: {len(st.session_state.solidifier_log)} actively exploited CVEs have been quarantined.")
     with st.expander("View Defense Log"):
         for cve in st.session_state.solidifier_log:
             st.code(f"[AUTO-DEFENSE] Applied strict WAF rules for {cve}.", language="bash")
 elif df["is_kev"].sum() == 0:
-    st.success("✅ No actively exploited CVEs detected. Solidifier standing by.")
+    st.success(" No actively exploited CVEs detected. Solidifier standing by.")
 
 st.divider()
 csv = display.to_csv(index=False).encode('utf-8')
-st.download_button("📥 Download Threat Report (CSV)", csv, "cyberradar_report.csv", "text/csv", use_container_width=True)
+st.download_button(" Download Threat Report (CSV)", csv, "cyberradar_report.csv", "text/csv", use_container_width=True)
