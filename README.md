@@ -45,3 +45,22 @@ This section supplements the maintainer-authored README above. The original text
 - Mark unverified sources, IDs, records, metrics and external claims as unknown/unverified instead of guessing.
 - Verify setup, execution, test commands and public claims against the exact current commit before using this project in a job, research or academic application.
 - See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for the independent model review and merge gate.
+
+---
+
+## Engineering Audit & Handover — 2026-11-17
+
+**Reviewed commit:** `4505dd9bf3a91c14ce6c00639e5b8538c3d621a2` (`main`). Static inspection covered `app.py` and `fetcher.py`; runtime tests were not executed.
+
+### Confirmed findings
+- The dashboard retrieves data from external threat-intelligence sources (including CISA KEV, URLhaus, and Ransomware.live) and applies cache windows. Displayed data is therefore dependent on upstream availability, source schemas, and cache freshness.
+- The fetcher stops NVD pagination after an exception and returns whatever has already been collected; consumers need to distinguish partial results from a complete query.
+- The dashboard's error paths return DataFrames containing an `Error` column. Downstream display/analysis code must handle these error-shaped results rather than assuming normal vulnerability columns.
+- The reviewed code does not establish that every listed event is independently validated or that the dashboard is a complete threat-intelligence feed.
+
+### Next actions
+1. Surface source, retrieval timestamp, cache age, partial-result status, and upstream errors in the UI.
+2. Add schema-drift and partial-pagination tests for each external feed.
+3. Keep threat data as defensive intelligence; avoid implying that absence from these feeds means a system is safe.
+
+**Verification status:** static source inspection only; live APIs, dashboard behavior, and tests remain unverified.
