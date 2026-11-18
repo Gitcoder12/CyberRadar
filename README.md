@@ -64,3 +64,24 @@ This section supplements the maintainer-authored README above. The original text
 3. Keep threat data as defensive intelligence; avoid implying that absence from these feeds means a system is safe.
 
 **Verification status:** static source inspection only; live APIs, dashboard behavior, and tests remain unverified.
+
+
+---
+
+## Branch Activity & Development History
+
+**Audit date:** 2026-11-18 · **Comparison base:** `main`
+
+| Branch | Difference from `main` | Observed work / changed paths |
+|---|---:|---|
+| `chore/remove-emoji-glyphs-2026-11-13` | 6 ahead / 3 behind | Glyph cleanup in `app.py` and `dashboard.py` |
+| `docs/portfolio-operating-kit-2026-11-13` | 5 / 3 | Activity log, agent guidance, worklog, company-fit notes, contributor guide, feature plan and skills; README has additions and removals |
+| `docs/project-status-2026-11-16-cyberradar` | 1 / 1 | Project status snapshot: `PROJECT_STATUS.md` |
+
+### Open pull requests observed during this audit
+
+- [PR #4 — project status snapshot](https://github.com/Gitcoder12/CyberRadar/pull/4)
+- [PR #3 — project handbook and agent contribution guide](https://github.com/Gitcoder12/CyberRadar/pull/3)
+- [PR #2 — remove emoji glyphs](https://github.com/Gitcoder12/CyberRadar/pull/2)
+
+**Review note:** The portfolio branch includes README removals as well as additions. Review its diff carefully before merging. Verification here is limited to Git metadata and changed paths.
