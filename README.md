@@ -64,3 +64,10 @@ This section supplements the maintainer-authored README above. The original text
 3. Keep threat data as defensive intelligence; avoid implying that absence from these feeds means a system is safe.
 
 **Verification status:** static source inspection only; live APIs, dashboard behavior, and tests remain unverified.
+
+---
+
+## Examples Used
+- Prioritizing a CVE listed in CISA KEV
+- Comparing CVSS severity with EPSS exploitation likelihood
+- Reviewing vulnerability exposure across vendors and time windows
