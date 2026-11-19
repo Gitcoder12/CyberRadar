@@ -71,3 +71,27 @@ This section supplements the maintainer-authored README above. The original text
 - Prioritizing a CVE listed in CISA KEV
 - Comparing CVSS severity with EPSS exploitation likelihood
 - Reviewing vulnerability exposure across vendors and time windows
+
+
+---
+
+## Comparison with Existing Open-Source Projects
+
+CyberRadar is documented as a vulnerability-intelligence dashboard that aggregates CVE and exploitation signals and ranks issues for defensive prioritization. The following projects provide adjacent vulnerability-management and intelligence references.
+
+| Project | Established focus | Relationship to CyberRadar |
+|---|---|---|
+| [DefectDojo](https://github.com/DefectDojo/django-DefectDojo) | Vulnerability management, findings aggregation and remediation workflows | A broader vulnerability-management platform; CyberRadar's stated focus is prioritizing public vulnerability intelligence from CVSS, EPSS and KEV signals. |
+| [OWASP Dependency-Track](https://github.com/DependencyTrack/dependency-track) | Component inventory and software-supply-chain risk analysis | Focuses on known components and their vulnerabilities; CyberRadar is framed around an external threat-intelligence view rather than an application's SBOM alone. |
+| [IntelOwl](https://github.com/intelowlproject/IntelOwl) | Threat-intelligence collection and enrichment orchestration | A broader enrichment platform; CyberRadar aims for a focused dashboard and composite prioritization view. |
+
+### Where CyberRadar is different
+- **Exploit-aware prioritization:** the documented score combines CVSS severity, EPSS likelihood and CISA KEV presence to distinguish urgency from severity alone.
+- **Multiple public intelligence feeds:** the project brings several external vulnerability/exploitation sources into one dashboard.
+- **Analyst-oriented overview:** the UI is designed to help users filter, inspect and export prioritized vulnerability records.
+
+### Where established projects are stronger
+DefectDojo, Dependency-Track and IntelOwl have more extensive workflows, integrations and deployment maturity. CyberRadar should not claim to be a complete vulnerability-management or asset-risk platform; its score is a prioritization heuristic, not a substitute for environment-specific exposure analysis.
+
+### Evidence and limitations
+Display source, retrieval time, cache age, partial-result status and upstream errors for every feed. Publish the scoring formula and test boundary cases. A missing CVE in an upstream feed does not imply that a system is safe. This is a documented-scope comparison, not a threat-detection or remediation-effectiveness benchmark.
