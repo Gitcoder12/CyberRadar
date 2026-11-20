@@ -5,7 +5,6 @@ The NVD API enforces a 120-day window per request, so the code pulls the maximum
 
 **Real-time vulnerability intelligence and risk prioritization.**
 
-[![Live Demo](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](YOUR_STREAMLIT_LINK_HERE)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 CyberRadar aggregates CVE data from NVD, CISA KEV, and FIRST EPSS to identify actively exploited vulnerabilities. It calculates a dynamic **Composite Risk Score** (CVSS + EPSS + KEV) to prioritize threats that are actually being weaponized.
@@ -21,14 +20,38 @@ CyberRadar aggregates CVE data from NVD, CISA KEV, and FIRST EPSS to identify ac
 ## Tech Stack
 Python · Streamlit · Plotly · Pandas · Pydantic
 
-## Quick Start
+## Open CyberRadar locally (VS Code)
+
+1. Clone the repository and open the folder in VS Code:
+
 ```bash
 git clone https://github.com/Gitcoder12/CyberRadar.git
 cd CyberRadar
+```
+
+2. Create and activate a virtual environment:
+
+```bash
+# Windows PowerShell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install dependencies and start the dashboard:
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 streamlit run dashboard.py
 ```
-*Note: Set `NVD_API_KEY` in your environment to bypass NVD rate limits.*
+
+4. Open **http://localhost:8501** in your browser if Streamlit does not open it automatically. Keep the terminal running while using CyberRadar; press **Ctrl+C** to stop it.
+
+*Optional:* set `NVD_API_KEY` in your environment to reduce NVD rate-limit restrictions. The dashboard still depends on external threat-intelligence APIs.
 
 ## License
 MIT License
